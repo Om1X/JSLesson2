@@ -26,7 +26,7 @@ class ProductList {
 
 		this.#render();
 	}
-
+	// Вот так делать не нужно, зачем? Ведь все можно поручить методам.
 	static countAmount = [];
 	static countPrice = [];
 
@@ -37,6 +37,8 @@ class ProductList {
 			block.insertAdjacentHTML("beforeend", productObject.render());
 			document.querySelector(`.buy-btn${product.id}`).addEventListener("click", () => productObject.renderButtonId(productObject));
 		}
+		// тоже плохо, лучше передать в конструктор ProductList ссылку корзину и работать с ней через нее.
+		// также непонятно, почему объект товара вдруг научился считать корзину? Это обязанности корзины.
 		BasketItem.prototype.sumBusket();
 		BasketItem.prototype.clearBattonBasket(this.#goods);
 	}
@@ -63,6 +65,8 @@ class ProductItem {
 	renderButtonId(product) {
 		const block = document.querySelector(this.container);
 		const productObject = new BasketItem(product);
+		// убираем эти прототипные записи, у нас есть самодостаточные же классы. Слишком много получается "внеших зависимостей",
+		// из-за чего код становится немасштабируемым
 		ProductList.countAmount.push(product.id);
 		ProductList.countPrice.push(product.price);
 		block.insertAdjacentHTML("beforeend", productObject.renderButtonId(productObject));
@@ -84,6 +88,8 @@ class BasketItem extends ProductItem {
 	}
 
 	sumBusket() {
+		// здесь тоже отказываемся, ну не должно заботить товар то, в какой корзине он лежит и как она работает. Все манипуляции с корзиной
+		// должны быть описаны внутри класса корзины.
 		let sum = ProductList.countPrice.reduce((total, countPrice) => total + countPrice, 0);
 		let sum2 = ProductList.countAmount.length;
 		if (ProductList.countAmount.length) {
